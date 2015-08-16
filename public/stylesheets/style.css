@@ -16,3 +16,6 @@ nav span             { margin: 0px 10px 0px 0px;}
 span.capitalize {
   text-transform: capitalize;
 }
+
+.comentario { color:Gray; font-size:smaller; margin-bottom:1em; }
+.comentario .orden { font-weight:bold; }
