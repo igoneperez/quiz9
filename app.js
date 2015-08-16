@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 var partials = require('express-partials');
 var methodOverride = require('method-override');
 var session = require('express-session');
- 
 
 var routes = require('./routes/index');
 
@@ -18,28 +17,47 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(partials());
+
 // uncomment after placing your favicon in /public
-// app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(favicon(__dirname + '/public/favicon.ico'));
+//app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(cookieParser('Quiz 2015'));
+app.use(cookieParser('powlam quiz')); //string para cifrar la cookie
 app.use(session());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Helpers dinamicos:
+//Helpers dinámicos para trabajo con sesión
 app.use(function(req, res, next) {
+    //1: guardar el path actual en sesión para poder redireccionar tras login o logout
+    if (!req.path.match(/\/login|\/logout/)) {
+        req.session.redir = req.path;
+    }
 
-  // guardar path en session.redir para despues de login
-  if (!req.path.match(/\/login|\/logout/)) {
-    req.session.redir = req.path;
-  }
+    //2: auto-logout tras más de 2 minutos de inactividad
+    if (req.session.user) {
+        var d = new Date();
+        var ahora = d.getTime();
+        if (req.session.horaUltimoAcceso) {
+            var inactividad = ahora-req.session.horaUltimoAcceso;
+            if (inactividad > 120000) {
+                delete req.session.user;
+                delete req.session.horaUltimoAcceso;
+                req.session.errors = [
+                    {   'message': 'Auto-logout ('+Math.round(inactividad/1000)+' segundos de inactividad)' }
+                ];
+                res.redirect('/login');
+                return;
+            }
+        }
+        req.session.horaUltimoAcceso = ahora;
+    }
 
-  // Hacer visible req.session en las vistas
-  res.locals.session = req.session;
-  next();
+    //3: pasar la sesión al res.locals para poderlo usar en las vistas
+    res.locals.session = req.session;
+
+    next();
 });
 
 app.use('/', routes);
@@ -61,7 +79,7 @@ if (app.get('env') === 'development') {
         res.render('error', {
             message: err.message,
             error: err,
-			errors: []
+            errors:[]
         });
     });
 }
@@ -73,7 +91,7 @@ app.use(function(err, req, res, next) {
     res.render('error', {
         message: err.message,
         error: {},
-		errors: []
+        errors:[]
     });
 });
 
