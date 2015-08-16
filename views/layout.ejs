@@ -16,7 +16,13 @@
 
 <body>
 <div id="page-wrap">
-  <header class="main" id="h1">
+   <header class="main" id="h1">
+    <%if(!session.user){%>
+      <span class="right"><a href="/login">Login</a></span>
+    <%}else{%>
+      <span class="right"> <%=session.user.username%> <a href="/logout">Logout</a></span>
+    <%}%>
+    
     <h2>Quiz<span>: el juego de las preguntas</span></h2>
   </header>
 
@@ -28,7 +34,7 @@
 
  <section class="main" id="s1">
     <% if (errors.length) { %>
-      <span id="ErrorMsgs">
+      <span id='ErrorMsgs'>
         Corregir errores:<br/>
         <% for (var i in errors) { %>
            <span> <%= errors[i].message %> </span><br/>
@@ -40,7 +46,7 @@
   </section>
 
   <footer class="main" id="f1">
-    <a href="http://es.wikipedia.org/wiki/Quiz" target="_blank">
+    <a href="http://es.wikipedia.org/wiki/Quiz">
       ¿Que es un Quiz?</a>
 	<br>
 	<a href="https://github.com/igoneperez" target="_blank">
